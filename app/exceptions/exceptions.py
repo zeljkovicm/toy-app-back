@@ -12,3 +12,15 @@ class ResourceNotFound(Exception):
 
 class ValidationError(Exception):
     pass
+
+
+class InvalidTokenError(Exception):
+    pass
+
+
+class ExpiredTokenError(Exception):
+    pass
+
+
+class OrderNotFound(Exception):
+    pass

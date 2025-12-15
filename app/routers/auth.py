@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import get_user_service
+from app.core.dependencies import get_user_service, get_current_user
 
 from app.schemas.user import (
     UserRegisterRequest,
@@ -10,7 +10,7 @@ from app.schemas.user import (
 )
 
 from app.services.user_service import UserService
-
+from app.models.user import UserModel
 
 router = APIRouter()
 
@@ -23,3 +23,8 @@ def register(payload: UserRegisterRequest, user_service: UserService = Depends(g
 @router.post("/login", response_model=LoginResponse)
 def login(payload: UserLoginRequest, user_service: UserService = Depends(get_user_service)):
     return user_service.authenticate_user(payload)
+
+
+@router.get("/me")
+def me(current_user: UserModel = Depends(get_current_user)):
+    return current_user
