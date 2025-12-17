@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.routers.auth import router as auth_router
 from app.routers.pequla import router as pequla_router
 from app.routers.product import router as product_router
@@ -34,6 +35,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.include_router(auth_router, prefix="/auth")
 app.include_router(pequla_router, prefix="/pequla")
 app.include_router(product_router, prefix="/enriched")
