@@ -1,5 +1,5 @@
 from app.schemas.camel_case_model import CamelCaseModel
-from datetime import datetime
+from datetime import date
 from uuid import UUID
 from app.schemas.review import Review
 
@@ -22,7 +22,7 @@ class Product(CamelCaseModel):
     permalink: str
     description: str
     target_group: str
-    production_date: datetime
+    production_date: date
     price: float
     image_url: str
     age_group: AgeGroup
