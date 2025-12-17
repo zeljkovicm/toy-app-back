@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.routers.auth import router as auth_router
-from app.routers.pequla import router as pequla_router
 from app.routers.product import router as product_router
 from app.routers.order import router as order_router
 from app.exceptions.exceptions import (
@@ -23,6 +22,7 @@ from app.exceptions.exception_handlers import (
     order_not_found_error_handler)
 
 app = FastAPI(title="Toy Store API", version="1.0.0")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 origins = [
     "http://localhost:4200",
@@ -35,10 +35,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
 app.include_router(auth_router, prefix="/auth")
-app.include_router(pequla_router, prefix="/pequla")
-app.include_router(product_router, prefix="/enriched")
+app.include_router(product_router, prefix="/products")
 app.include_router(order_router, prefix="/order")
 
 

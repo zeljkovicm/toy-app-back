@@ -1,38 +1,57 @@
-from app.services.pequla_service import PequlaService
-from app.repositories.product_stock_repository import ProductStockRepository
-from app.repositories.review_repository import ReviewRepository
-from app.schemas.product import Product
+from typing import List
 from sqlmodel import Session
+from app.repositories.product_repository import ProductRepository
+from app.schemas.product import AgeGroup, Product, ProductType
+from app.schemas.product import Product
+from app.exceptions.exceptions import ResourceNotFound
 
 
 class ProductService:
 
-    @staticmethod
-    async def get_all_products(db: Session) -> list[Product]:
-        products = await PequlaService.get_all_toys()
+    def __init__(self, db: Session):
+        self.repository = ProductRepository(db)
 
-        stock_repo = ProductStockRepository(db)
-        review_repo = ReviewRepository(db)
+    def get_all_products(self) -> List[Product]:
+        rows = self.repository.get_all_products()
+        return [self.map_row_to_product_schema(row) for row in rows]
 
-        enriched = []
-        for p in products:
-            p.quantity = stock_repo.get_quantity(p.toy_id)
-            p.review_count = review_repo.get_review_count(p.toy_id)
-            p.average_rating = review_repo.get_average_rating(p.toy_id)
-            p.reviews = review_repo.get_reviews(p.toy_id)
+    def get_product_by_permalink(self, permalink: str) -> Product:
+        row = self.repository.get_product_by_permalink(permalink)
+        if not row:
+            raise ResourceNotFound("Proizvod ne postoji.")
+        return self.map_row_to_product_schema(row)
 
-            enriched.append(p)
-        return enriched
+    def get_product_by_id(self, toy_id: int) -> Product:
+        row = self.repository.get_product_by_id(toy_id)
+        if not row:
+            raise ResourceNotFound("Proizvod ne postoji.")
+        return self.map_row_to_product_schema(row)
 
-    @staticmethod
-    async def get_product_by_permalink(db: Session, permalink: str) -> Product:
-        product = await PequlaService.get_toy_by_permalink(permalink)
+    def map_row_to_product_schema(self, row: dict) -> Product:
+        return Product(
+            toy_id=row["toy_id"],
+            name=row["name"],
+            permalink=row["permalink"],
+            description=row["description"],
+            target_group=row["target_group"],
+            production_date=row["production_date"],
+            price=row["price"],
+            image_url=row["image_url"],
 
-        stock_repo = ProductStockRepository(db)
-        review_repo = ReviewRepository(db)
-        product.quantity = stock_repo.get_quantity(product.toy_id)
-        product.review_count = review_repo.get_review_count(product.toy_id)
-        product.average_rating = review_repo.get_average_rating(product.toy_id)
-        product.reviews = review_repo.get_reviews(product.toy_id)
+            age_group=AgeGroup(
+                age_group_id=row["age_group_id"],
+                name=row["age_group_name"],
+                description=row["age_group_description"],
+            ),
 
-        return product
+            type=ProductType(
+                type_id=row["type_id"],
+                name=row["type_name"],
+                description=row["type_description"],
+            ),
+
+            quantity=row["quantity"],
+            average_rating=float(row["average_rating"]),
+            review_count=row["review_count"],
+            reviews=[]
+        )
