@@ -12,3 +12,15 @@ class Review(CamelCaseModel):
     title: str | None = None
     comment: str
     created_at: datetime
+
+
+class RatingBreakdownItem(CamelCaseModel):
+    stars: int
+    count: int
+    percentage: float
+
+
+class RatingSummary(CamelCaseModel):
+    average_rating: float
+    review_count: int
+    breakdown: list[RatingBreakdownItem]

@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from app.routers.auth import router as auth_router
 from app.routers.product import router as product_router
 from app.routers.order import router as order_router
+from app.routers.review import router as review_router
 from app.exceptions.exceptions import (
     AuthenticationError,
     UserAlreadyExistsError,
@@ -39,6 +40,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/auth")
 app.include_router(product_router, prefix="/products")
 app.include_router(order_router, prefix="/order")
+app.include_router(review_router, prefix="/reviews")
 
 
 app.add_exception_handler(AuthenticationError, authentication_error_handler)

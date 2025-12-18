@@ -5,6 +5,7 @@ from app.core.db import get_db
 from app.services.user_service import UserService
 from app.services.order_service import OrderService
 from app.services.product_service import ProductService
+from app.services.review_service import ReviewService
 from app.exceptions.exceptions import InvalidTokenError, ExpiredTokenError, ResourceNotFound
 
 from uuid import UUID
@@ -26,6 +27,10 @@ def get_order_service(db: Session = Depends(get_db)) -> OrderService:
 
 def get_product_service(db: Session = Depends(get_db)) -> ProductService:
     return ProductService(db)
+
+
+def get_review_service(db: Session = Depends(get_db)) -> ReviewService:
+    return ReviewService(db)
 
 
 def get_current_user(token: str = Depends(oauth_scheme), db: Session = Depends(get_db)) -> UserModel:
