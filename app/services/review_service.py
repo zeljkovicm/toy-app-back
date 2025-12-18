@@ -1,17 +1,20 @@
-from fastapi import HTTPException, status
 from sqlmodel import Session
 from uuid import UUID
 
 
 from app.repositories.review_repository import ReviewRepository
+from app.repositories.order_repository import OrderRepository
 from app.models.review import ReviewModel
 from app.schemas.review import Review, RatingBreakdownItem, RatingSummary
+
+from app.exceptions.exceptions import ReviewNotAllowedError, ReviewAlreadyExistError
 
 
 class ReviewService:
 
     def __init__(self, db: Session):
         self.review_repository = ReviewRepository(db)
+        self.order_repository = OrderRepository(db)
 
     def get_reviews_for_product(self, toy_id: int) -> list[Review]:
         rows = self.review_repository.get_reviews_by_toy_id(toy_id)
@@ -39,6 +42,37 @@ class ReviewService:
             average_rating=average,
             review_count=count,
             breakdown=breakdown
+        )
+
+    def can_user_review(self, user_id, toy_id) -> bool:
+        return self.order_repository.user_has_purchased_product(
+            user_id=user_id,
+            toy_id=toy_id
+        )
+
+    def create_review(self, user, data) -> Review:
+        if not self.can_user_review(user.id, data.toy_id):
+            raise ReviewNotAllowedError(
+                "Možete oceniti samo proizvode koje ste kupili.")
+
+        if self.review_repository.user_already_reviewed(
+            user.id, data.toy_id
+        ):
+            raise ReviewAlreadyExistError("Već ste ocenili ovaj proizvod.")
+
+        review_model = ReviewModel(
+            toy_id=data.toy_id,
+            user_id=user.id,
+            rating=data.rating,
+            title=data.title,
+            comment=data.comment,
+        )
+
+        saved_review = self.review_repository.create_review(review_model)
+
+        return self.map_reviews(
+            review=saved_review,
+            user_name=user.name
         )
 
     @staticmethod

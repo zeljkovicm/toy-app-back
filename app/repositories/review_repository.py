@@ -10,6 +10,12 @@ class ReviewRepository:
     def __init__(self, db: Session):
         self.db = db
 
+    def create_review(self, review: Review) -> Review:
+        self.db.add(review)
+        self.db.commit()
+        self.db.refresh(review)
+        return review
+
     def get_reviews_by_toy_id(self, toy_id: int):
         return self.db.exec(
             select(ReviewModel, UserModel.name)
@@ -40,3 +46,12 @@ class ReviewRepository:
         ).all()
 
         return {rating: count for rating, count in rows}
+
+    def user_already_reviewed(self, user_id, toy_id) -> bool:
+        return self.db.exec((
+            select(ReviewModel.review_id)
+            .where(
+                ReviewModel.user_id == user_id,
+                ReviewModel.toy_id == toy_id
+            )
+            .limit(1))).first() is not None

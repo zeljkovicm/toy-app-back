@@ -14,6 +14,13 @@ class Review(CamelCaseModel):
     created_at: datetime
 
 
+class ReviewCreate(CamelCaseModel):
+    toy_id: int
+    rating: int
+    title: str | None = None
+    comment: str
+
+
 class RatingBreakdownItem(CamelCaseModel):
     stars: int
     count: int

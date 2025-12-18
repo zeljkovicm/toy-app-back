@@ -24,3 +24,11 @@ class ExpiredTokenError(Exception):
 
 class OrderNotFound(Exception):
     pass
+
+
+class ReviewAlreadyExistError(Exception):
+    pass
+
+
+class ReviewNotAllowedError(Exception):
+    pass

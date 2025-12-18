@@ -12,7 +12,9 @@ from app.exceptions.exceptions import (
     ValidationError,
     InvalidTokenError,
     ExpiredTokenError,
-    OrderNotFound)
+    OrderNotFound,
+    ReviewNotAllowedError,
+    ReviewAlreadyExistError)
 from app.exceptions.exception_handlers import (
     authentication_error_handler,
     user_already_exists_error_handler,
@@ -20,7 +22,10 @@ from app.exceptions.exception_handlers import (
     validation_error_handler,
     invalid_token_error_handler,
     expired_token_error_handler,
-    order_not_found_error_handler)
+    order_not_found_error_handler,
+    review_exist_error_handler,
+    review_not_allowed_error_handler
+)
 
 app = FastAPI(title="Toy Store API", version="1.0.0")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -51,3 +56,6 @@ app.add_exception_handler(ValidationError, validation_error_handler)
 app.add_exception_handler(ExpiredTokenError, expired_token_error_handler)
 app.add_exception_handler(InvalidTokenError, invalid_token_error_handler)
 app.add_exception_handler(OrderNotFound, order_not_found_error_handler)
+app.add_exception_handler(ReviewAlreadyExistError, review_exist_error_handler)
+app.add_exception_handler(ReviewNotAllowedError,
+                          review_not_allowed_error_handler)

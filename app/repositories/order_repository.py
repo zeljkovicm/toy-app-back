@@ -32,3 +32,15 @@ class OrderRepository:
         self.db.add(order)
         self.db.commit()
         self.db.refresh(order)
+
+    def user_has_purchased_product(self, user_id: UUID, toy_id: int) -> bool:
+        result = self.db.exec(
+            select(OrderItemModel.id)
+            .join(OrderModel, OrderModel.id == OrderItemModel.order_id)
+            .where(
+                OrderModel.user_id == user_id,
+                OrderItemModel.toy_id == toy_id,
+                OrderModel.payment_status == "success",
+                OrderModel.delivery_status == "success"
+            ).limit(1)).first()
+        return result is not None
