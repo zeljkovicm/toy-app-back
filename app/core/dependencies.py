@@ -1,4 +1,5 @@
 from typing import Any
+from jose import ExpiredSignatureError
 from sqlalchemy.orm import Session
 from fastapi import Depends, Response
 from app.core.db import get_db
@@ -40,7 +41,7 @@ def get_current_user(token: str = Depends(oauth_scheme), db: Session = Depends(g
 
         if not user_id:
             raise InvalidTokenError("Invalid token payload")
-    except ExpiredTokenError:
+    except ExpiredSignatureError:
         raise ExpiredTokenError("Expired token payload")
 
     user = db.get(UserModel, UUID(user_id))
